@@ -1,10 +1,10 @@
-import { db } from "./db/client";
-import { env } from "./config/env";
-import { createUserRepository } from "./repositories/user.repository";
-import { createRefreshTokenRepository } from "./repositories/refresh-token.repository";
-import { createAuthService } from "./services/auth.service";
-import { createAuthController } from "./controllers/auth.controller";
-import { createAuthRouter } from "./routes/auth.routes";
+import { db } from "./db/client.js";
+import { env } from "./config/env.js";
+import { createUserRepository } from "./repositories/user.repository.js";
+import { createRefreshTokenRepository } from "./repositories/refresh-token.repository.js";
+import { createAuthService } from "./services/auth.service.js";
+import { createAuthController } from "./controllers/auth.controller.js";
+import { createAuthRouter } from "./routes/auth.routes.js";
 
 const users = createUserRepository(db);
 const tokens = createRefreshTokenRepository(db);

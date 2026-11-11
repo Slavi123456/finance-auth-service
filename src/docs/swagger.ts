@@ -1,9 +1,15 @@
 import type { Express } from "express";
 import swaggerUi from "swagger-ui-express";
 import { OpenAPIRegistry, OpenApiGeneratorV3 } from "@asteasolutions/zod-to-openapi";
-import { registerSchema, loginSchema, refreshSchema } from "../schemas/auth.schema";
+import { registerSchema, loginSchema, refreshSchema } from "../schemas/auth.schema.js";
 
 const registry = new OpenAPIRegistry();
+
+const bearerAuth = registry.registerComponent("securitySchemes", "bearerAuth", {
+  type: "http",
+  scheme: "bearer",
+  bearerFormat: "JWT",
+});
 
 registry.registerPath({
   method: "post",
@@ -47,6 +53,7 @@ registry.registerPath({
   path: "/auth/logout",
   tags: ["auth"],
   summary: "Revoke a refresh token",
+  security: [{ [bearerAuth.name]: [] }],
   request: { body: { content: { "application/json": { schema: refreshSchema } } } },
   responses: { 204: { description: "Logged out" } },
 });
@@ -56,7 +63,7 @@ registry.registerPath({
   path: "/auth/me",
   tags: ["auth"],
   summary: "Get the current user's profile",
-  security: [{ bearerAuth: [] }],
+  security: [{ [bearerAuth.name]: [] }],
   responses: {
     200: { description: "Profile returned" },
     401: { description: "Missing or invalid access token" },
@@ -68,11 +75,11 @@ export function mountDocs(app: Express) {
   const document = generator.generateDocument({
     openapi: "3.0.0",
     info: { title: "Finance Auth Service", version: "1.0.0" },
-    components: {
-      securitySchemes: {
-        bearerAuth: { type: "http", scheme: "bearer", bearerFormat: "JWT" },
-      },
-    },
+    // components: {
+    //   securitySchemes: {
+    //     bearerAuth: { type: "http", scheme: "bearer", bearerFormat: "JWT" },
+    //   },
+    // },
   });
 
   app.get("/docs.json", (_req, res) => res.json(document));

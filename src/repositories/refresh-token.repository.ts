@@ -1,28 +1,37 @@
-import { eq, sql } from "drizzle-orm";
-import { users } from "../db/schema";
-import type { Db } from "../db/client";
+import { and, eq, isNull } from "drizzle-orm";
+import { refreshTokens } from "../db/schema.js";
+import type { Db } from "../db/client.js";
 
-export function createUserRepository(db: Db) {
+export function createRefreshTokenRepository(db: Db) {
   return {
-    async findByEmail(email: string) {
+    async create(data: { userId: string; tokenHash: string; expiresAt: Date }) {
+      const [row] = await db.insert(refreshTokens).values(data).returning();
+      return row;
+    },
+
+    async findByHash(tokenHash: string) {
       const [row] = await db
         .select()
-        .from(users)
-        .where(sql`lower(${users.email}) = lower(${email})`)
+        .from(refreshTokens)
+        .where(eq(refreshTokens.tokenHash, tokenHash))
         .limit(1);
       return row ?? null;
     },
 
-    async findById(id: string) {
-      const [row] = await db.select().from(users).where(eq(users.id, id)).limit(1);
-      return row ?? null;
+    async revoke(id: string, replacedById?: string) {
+      await db
+        .update(refreshTokens)
+        .set({ revokedAt: new Date(), replacedById: replacedById ?? null })
+        .where(eq(refreshTokens.id, id));
     },
 
-    async create(data: { email: string; name: string; passwordHash: string }) {
-      const [row] = await db.insert(users).values(data).returning();
-      return row;
+    async revokeAllForUser(userId: string) {
+      await db
+        .update(refreshTokens)
+        .set({ revokedAt: new Date() })
+        .where(and(eq(refreshTokens.userId, userId), isNull(refreshTokens.revokedAt)));
     },
   };
 }
 
-export type UserRepo = ReturnType<typeof createUserRepository>;
+export type RefreshTokenRepo = ReturnType<typeof createRefreshTokenRepository>;

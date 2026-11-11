@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { createAuthService } from "../../src/services/auth.service";
-import type { UserRepo } from "../../src/repositories/user.repository";
-import type { RefreshTokenRepo } from "../../src/repositories/refresh-token.repository";
+import { createAuthService } from "../../src/services/auth.service.js";
+// import type { UserRepo } from "../../src/repositories/user.repository.js";
+// import type { RefreshTokenRepo } from "../../src/repositories/refresh-token.repository.js";
 
 function fakeRepos() {
   const userRows: any[] = [];
@@ -16,7 +16,7 @@ function fakeRepos() {
       userRows.push(row);
       return row;
     },
-  } as unknown as UserRepo;
+  };
 
   const tokens = {
     create: async (data: any) => {
@@ -35,7 +35,7 @@ function fakeRepos() {
     revokeAllForUser: async (userId: string) => {
       tokenRows.filter((t) => t.userId === userId).forEach((t) => (t.revokedAt = new Date()));
     },
-  } as unknown as RefreshTokenRepo;
+  };
 
   return { users, tokens };
 }

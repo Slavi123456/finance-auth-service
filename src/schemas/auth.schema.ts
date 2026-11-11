@@ -1,12 +1,12 @@
-import {z} from 'zod';
+import { z } from "zod";
 
 const incorrectPasswordMessage = "Password must be at least 8 characters";
 
-export const registerSchema = z.schema({
-    email: z.string().trim().toLowerCase().email().max(255),
-    name: z.string().trim().min(2).max(100),
-    //bcrypt only uses the first 72 bytes
-    password: z.string().min(8).max(72)
+export const registerSchema = z.object({
+  email: z.string().trim().toLowerCase().email().max(255),
+  name: z.string().trim().min(2).max(100),
+  //bcrypt only uses the first 72 bytes
+  password: z.string().min(8, incorrectPasswordMessage).max(72),
 });
 
 export const loginSchema = z.object({

@@ -32,10 +32,9 @@ export const refreshTokens = pgTable(
     tokenHash: text("token_hash").notNull().unique(),
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
     revokedAt: timestamp("revoked_at", { withTimezone: true }),
-    replacedById: uuid("replaced_by_id").references(
-      (): AnyPgColumn => refreshTokens.id,
-      { onDelete: "set null" },
-    ),
+    replacedById: uuid("replaced_by_id").references((): AnyPgColumn => refreshTokens.id, {
+      onDelete: "set null",
+    }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("refresh_tokens_user_idx").on(t.userId)],

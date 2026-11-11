@@ -1,31 +1,37 @@
 import type { Request, Response } from "express";
-import type { AuthService } from "../services/auth.service";
+import type { ParamsDictionary } from "express-serve-static-core";
+import type { AuthService } from "../services/auth.service.js";
+import type { LoginInput, RefreshTokenInput, RegisterInput } from "../schemas/auth.schema.js";
+
+type ValidatedRequest<B> = Request<ParamsDictionary, unknown, B>;
 
 export function createAuthController(service: AuthService) {
   return {
-    async register(req: Request, res: Response) {
+    register: async (req: ValidatedRequest<RegisterInput>, res: Response) => {
       const result = await service.register(req.body);
       res.status(201).json(result);
     },
 
-    async login(req: Request, res: Response) {
+    login: async (req: ValidatedRequest<LoginInput>, res: Response) => {
       const result = await service.login(req.body);
       res.json(result);
     },
 
-    async refresh(req: Request, res: Response) {
+    refresh: async (req: ValidatedRequest<RefreshTokenInput>, res: Response) => {
       const result = await service.refresh(req.body.refreshToken);
       res.json(result);
     },
 
-    async logout(req: Request, res: Response) {
+    logout: async (req: ValidatedRequest<RefreshTokenInput>, res: Response) => {
       await service.logout(req.body.refreshToken);
       res.status(204).end();
     },
 
-    async me(req: Request, res: Response) {
+    me: async (req: Request, res: Response) => {
       const user = await service.getProfile(req.userId!);
       res.json(user);
     },
   };
 }
+
+export type AuthController = ReturnType<typeof createAuthController>;
