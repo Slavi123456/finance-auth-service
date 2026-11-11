@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { validate } from "../middleware/validate";
-import { authenticate } from "../middleware/authenticate";
-import { registerSchema, loginSchema, refreshSchema } from "../schemas/auth.schema";
-import type { AuthController } from "../controllers/auth.controller";
+import { validate } from "../middleware/validate.js";
+import { authenticate } from "../middleware/authenticate.js";
+import { registerSchema, loginSchema, refreshSchema } from "../schemas/auth.schema.js";
+import type { AuthController } from "../controllers/auth.controller.js";
 
-export function createAuthRouter(controller: AuthController) {
+export const createAuthRouter = function (controller: AuthController) {
   const router = Router();
 
   router.post("/register", validate(registerSchema), controller.register);
@@ -14,4 +14,4 @@ export function createAuthRouter(controller: AuthController) {
   router.get("/me", authenticate, controller.me);
 
   return router;
-}
+};

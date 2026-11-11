@@ -1,6 +1,6 @@
 import { eq, sql } from "drizzle-orm";
-import { users } from "../db/schema";
-import type { Db } from "../db/client";
+import { users } from "../db/schema.js";
+import type { Db } from "../db/client.js";
 
 export function createUserRepository(db: Db) {
   return {

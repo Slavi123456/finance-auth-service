@@ -1,10 +1,10 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { createHash, randomBytes } from "node:crypto";
-import { AppError } from "../utils/app-error";
-import type { UserRepo } from "../repositories/user.repository";
-import type { RefreshTokenRepo } from "../repositories/refresh-token.repository";
-import type { RegisterInput, LoginInput } from "../schemas/auth.schema";
+import { AppError } from "../utils/app-error.js";
+import type { UserRepo } from "../repositories/user.repository.js";
+import type { RefreshTokenRepo } from "../repositories/refresh-token.repository.js";
+import type { RegisterInput, LoginInput } from "../schemas/auth.schema.js";
 
 export interface AuthConfig {
   jwtSecret: string;
@@ -31,11 +31,11 @@ export function createAuthService({ users, tokens, config }: Deps) {
 
   function signAccessToken(userId: string, email: string) {
     return jwt.sign({ sub: userId, email }, config.jwtSecret, {
-      expiresIn: config.accessTtl as jwt.SignOptions["expiresIn"],
+      expiresIn: config.accessTtl as NonNullable<jwt.SignOptions["expiresIn"]>,
     });
   }
 
-  async function createRefreshToken(userId: string, replacedBy?: string) {
+  async function createRefreshToken(userId: string) {
     const raw = randomBytes(32).toString("base64url");
     const expiresAt = new Date(Date.now() + config.refreshTtlDays * 24 * 60 * 60 * 1000);
     const row = await tokens.create({ userId, tokenHash: sha256(raw), expiresAt });
@@ -62,6 +62,9 @@ export function createAuthService({ users, tokens, config }: Deps) {
         name: input.name,
         passwordHash,
       });
+
+      if (!user) throw new AppError(500, "Failed to create user");
+
       return issueSession(user);
     },
 
@@ -91,7 +94,7 @@ export function createAuthService({ users, tokens, config }: Deps) {
       if (!user) throw new AppError(401, "Invalid refresh token");
 
       const { raw, row: next } = await createRefreshToken(user.id);
-      await tokens.revoke(row.id, next.id);
+      await tokens.revoke(row.id, next?.id);
 
       return {
         accessToken: signAccessToken(user.id, user.email),

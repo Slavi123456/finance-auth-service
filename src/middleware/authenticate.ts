@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { env } from "../config/env";
-import { AppError } from "../utils/app-error";
+import { env } from "../config/env.js";
+import { AppError } from "../utils/app-error.js";
 
 declare global {
   namespace Express {
@@ -19,7 +19,9 @@ export function authenticate(req: Request, _res: Response, next: NextFunction) {
   }
 
   try {
-    const payload = jwt.verify(header.slice(bearerWordLenght), env.JWT_ACCESS_SECRET) as { sub: string };
+    const payload = jwt.verify(header.slice(bearerWordLenght), env.JWT_ACCESS_SECRET) as {
+      sub: string;
+    };
     req.userId = payload.sub;
     next();
   } catch {

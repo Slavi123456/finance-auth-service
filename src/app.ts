@@ -1,7 +1,7 @@
 import express from "express";
-import { authRouter } from "./container";
-import { errorHandler } from "./middleware/error-handler";
-import { mountDocs } from "./docs/swagger";
+import { authRouter } from "./container.js";
+import { errorHandler } from "./middleware/error-handler.js";
+import { mountDocs } from "./docs/swagger.js";
 
 export function createApp() {
   const app = express();
